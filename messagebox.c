@@ -1,5 +1,5 @@
 /*
- * MessageBox Utility
+ * MessageBox Utility v1.2
  * A simple command-line tool for displaying Windows message boxes
  * Copyright (c) Dark Net Studio 2019 - 2025. All rights reserved.
  */
@@ -22,7 +22,7 @@ void showHelp() {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
     SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-    printf("\nMessageBox Utility - Help Version 1.1\n\n");
+    printf("\nMessageBox Utility - Help Version 1.2\n\n");
 
     SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
     printf("Command-Line Arguments:\n");
@@ -88,13 +88,10 @@ UINT getButtonFlag(const char* btn) {
 
 // Main function
 int main(int argc, char* argv[]) {
-    // Attach to parent console or create new one
-    if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
-        AllocConsole();
-    }
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
-
+    // Check if we're in a console subsystem build
+    // For output redirection to work properly, we should avoid AttachConsole/AllocConsole
+    // when the executable is already compiled as a console application
+    
     // Show help if requested
     if (argc == 2 && equals(argv[1], "/?")) {
         showHelp();
@@ -148,6 +145,10 @@ int main(int argc, char* argv[]) {
 
     // Cleanup and return result
     FreeLibrary(hUser32);
+    
+    // Make sure output is flushed before exiting
     printf("%s\n", resultToString(result));
+    fflush(stdout);
+    
     return 0;
 }
